@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'django_celery_beat',
     'corsheaders',
     'rest_framework',
+    'app',
 ]
 
 # *************************************** #
