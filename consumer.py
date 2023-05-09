@@ -2,6 +2,7 @@ import json
 import os
 import django
 import pika
+from configuration.logger import info_log as logger
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "core.settings")
 django.setup()
@@ -10,8 +11,9 @@ from app.models import Post
 
 
 def main():
-    credentials = pika.PlainCredentials('root', 'root')
-    connection = pika.BlockingConnection(pika.ConnectionParameters('localhost', 5672, '/', credentials))
+    logger.info(f"<<< start function main()")
+    credentials = pika.PlainCredentials('admin', 'qaz1986qaz')
+    connection = pika.BlockingConnection(pika.ConnectionParameters('77.222.42.181', 5672, '/', credentials))
     channel = connection.channel()
 
     result = channel.queue_declare(queue='post', durable=True)
@@ -21,10 +23,11 @@ def main():
         exchange='direct', queue=queue_name, routing_key='severity')
 
     def callback(ch, method, properties, body):
-        print(" [x] %r:%r" % (method.routing_key, body.decode()))
+        logger.debug(" [x] %r:%r" % (method.routing_key, body.decode()))
         output_dict = json.loads(body.decode("utf-8"))
-        print(output_dict["method"])
-        print(properties.content_type)
+        logger.debug(f"output_dict {output_dict['method'] }")
+        logger.debug(f"properties {properties.content_type}")
+
         posts = Post.objects.all()
         if properties.content_type == 'create-post':
             quote = Post.objects.create(title=output_dict["title"], text=output_dict["text"])

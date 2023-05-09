@@ -45,7 +45,7 @@ class PostCreate(APIView):
 class Test(APIView):
     print("==Test==")
 
-    def get(self, request):
+    def post(self, request):
         try:
             publish(request.data['method'], request.data)
         except Exception as ex:

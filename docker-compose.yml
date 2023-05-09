@@ -7,42 +7,7 @@ services:
         command: python manage.py runserver 0.0.0.0:8000
         volumes:
             - .:/usr/src/service_django/
+            - /var/log/service_django/:/var/log/service_django/
         ports:
             - "8001:8000"
-        environment:
-            - CELERY_BROKER=redis://redis:6379/0
-            - CELERY_BACKEND=redis://redis:6379/0
-        depends_on:
-            - redis
-    celery:
-        build: .
-        container_name: celery-service
-        command: celery -A core worker -l info
-        volumes:
-            - .:/usr/src/DjangoProject
-        environment:
-            - CELERY_BROKER=redis://redis:6379/0
-            - CELERY_BACKEND=redis://redis:6379/0
-        depends_on:
-            - django
-            - redis
 
-
-    celery-beats:
-        build: .
-        container_name: celery-beats-service
-        command: celery -A core beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
-        volumes:
-            - .:/usr/src/service_django
-        environment:
-            - CELERY_BROKER=redis://redis:6379/0
-            - CELERY_BACKEND=redis://redis:6379/0
-        depends_on:
-            - django
-            - redis
-
-    redis:
-        image: "redis:alpine"
-        container_name: redis-service
-        ports:
-            - "6379:6379"
